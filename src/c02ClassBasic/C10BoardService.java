@@ -52,7 +52,7 @@ public class C10BoardService {
                 }
                 case "3" -> {
                     System.out.println("회원 상세 조회를 위해 ID를 입력해주세요.");
-                    int id = Integer.parseInt(br.readLine());
+                    Long id = Long.parseLong(br.readLine());
                     Author author = authorList.stream().filter((e) -> e.getId() == id).findFirst().orElse(null);
                     if (author == null) {
                         System.out.println("해당 ID의 회원이 존재하지 않습니다.");
@@ -95,7 +95,7 @@ public class C10BoardService {
                 }
                 case "6" -> {
                     System.out.println("게시물 상세 조회를 위해 ID를 입력해주세요.");
-                    int id = Integer.parseInt(br.readLine());
+                    Long id = Long.parseLong(br.readLine());
                     List<Post> filteredPosts = postList.stream().filter((e) -> e.getAuthorId() == id).toList();
 
                     if (filteredPosts.isEmpty()) {
@@ -129,21 +129,24 @@ public class C10BoardService {
 }
 
 class Author{
-    static int idCounter = 0;
-    private int id;
+//    일반적으로 클래스를 정의할때 원시자료형은 wrapper 클래스로 정의함.
+    static Long idCounter =0L;
+    private Long id;
     private String name;
     private String email;
     private String password;
-    List<Post> posts = new ArrayList<>();
+//    Author객체에 본인이 쓴글 목록인 postList를 추가
+    List<Post> posts;
 
     public Author(String name, String email, String password) {
         this.id = ++idCounter;
         this.name = name;
         this.email = email;
         this.password = password;
+        this.posts = new ArrayList<>();
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -162,14 +165,25 @@ class Author{
     public List<Post> getPosts() {
         return posts;
     }
+
+    @Override
+    public String toString() {
+        return "Author{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", posts=" + posts +
+                '}';
+    }
 }
 
 class Post{
-    private static int idCounter = 0;
-    private int id;
+    private static Long idCounter= 0L;
+    private Long id;
     private String title;
     private String contents;
-    private int authorId;
+    private Long authorId;
     private Author author;
 
     public Post(String title, String contents, Author author){
@@ -181,7 +195,7 @@ class Post{
         author.posts.add(this);
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -193,7 +207,7 @@ class Post{
         return contents;
     }
 
-    public int getAuthorId() {
+    public Long getAuthorId() {
         return authorId;
     }
 
