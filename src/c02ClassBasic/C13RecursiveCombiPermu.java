@@ -1,10 +1,12 @@
 package c02ClassBasic;
 
+import C03Inheritance.C04ProtectedClass;
+
 import java.util.*;
 import java.io.*;
 
 //조합(combination)과 순열(permutation)
-public class C13RecursiveCombiPermu {
+public class C13RecursiveCombiPermu{
     public static void main(String[] args) {
 //        int total = 0;
 //        for(int i=0; i<3; i++){
