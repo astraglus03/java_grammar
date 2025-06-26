@@ -2,10 +2,15 @@ package C07ExceptionFileParsing;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.InvalidParameterException;
 import java.sql.SQLException;
+import java.util.NoSuchElementException;
 
 public class C01Exception {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args){
         BufferedReader br = new BufferedReader(new java.io.InputStreamReader(System.in));
 //        일반적인 예외처리 방식
 //        System.out.println("나눗셈 프로그램입니다.");
@@ -55,40 +60,61 @@ public class C01Exception {
 //            System.out.println("로그인 실패!");
 //        }
 
-        System.out.println("로그인 프로그램입니다.");
-        String input = br.readLine();
-
 //        checked exception의 경우에는 예외처리를 위임받게되면, 반드시 예외처리를 하거나, 다시 throws해야함.
 //        스프링에서는 롤백을 해야하기 때문에 checked를 unchecked로 변환하는 경우가 많음.
+
+//        chcked exception의 경우
+//        1) 호출받는 쪽에서 예외처리 후 unchecked exception 예외 발생. 호출하는 쪽에서 예외처리하여 사용자에게 적절한 message 전달
         try{
-            login2(input);
-        }catch(SQLException e) {
-            e.printStackTrace();
-        }catch(Exception e) {
+            String result = fileRead("src/C07ExceptionFileParsing/text.txt");
+        }catch(RuntimeException e){
+            System.out.println(e.getMessage());
             e.printStackTrace();
         }
+
+//        2) throws를 통해 checked예외처리를 위임받게
+//        String result = null;
+//        try{
+//            result = fileRead("src/C07ExceptionFileParsing/text.txt");
+//        }catch(RuntimeException e){
+//            throw new RuntimeException("파일 읽기 중 오류가 발생했습니다.", e);
+//        }
+
+//        System.out.println(result);
     }
 //    throws 키워드를 통해 예외를 위임.
 //    다만, unchecked 예외에서는 예외처리가 강제가 아니므로, throws가 큰의미는 없음.
 //    그러나, checked 예외에서는 예외처리가 강제되므로, throws가 의미가 있음.
 
-    static boolean login(String pw) {
+    static boolean login(String pw) throws IllegalArgumentException, NoSuchElementException {
+//        예외를 강제 발생시킴으로서 이 시점에서 해당 메서드 강제 종료
+//        예외는 기본적으로 해당 메서드를 호출한 쪽으로 전파
         if (pw.equals("1234")) {
             return true;
-        } else {
-//            예외를 강제 발생시킴으로서 이 시점에서 해당 메서드 강제 종료
-//            예외는 기본적으로 해당 메서드를 호출한 쪽으로 전파
-            throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
+        } else if(pw == null){
+            throw new IllegalArgumentException("비밀번호가 입력되지 않았습니다.");
+        } else{
+            throw new NoSuchElementException("비밀번호가 틀렸습니다.");
         }
     }
+//    static String fileRead(String path) throws IOException {
+        static String fileRead(String path) throws RuntimeException {
+        Path filePath = Paths.get(path);
+//        checked Exception의 경우 예외처리가 강제
+////        방법1. checked를 try catch한 이후에 unchecked예외를 다시 throw
+////        방법1을 더 많이 사용함
+        String text = null;
 
-    static boolean login2(String pw) throws SQLException {
-        if (pw.equals("1234")) {
-            return true;
-        } else {
-//            checked exception은 예외처리가 강제.
-//            해당 메서드내에서 예외처리를 하든, 아니면 명시적으로 throws를 통해 호출 메서드쪽에 위임.
-            throw new SQLException("비밀번호가 틀렸습니다.");
+        try{
+            text = Files.readString(filePath);
+        }catch(IOException e){
+//            System.out.println("입출력 과정에서 예외가 발생했습니다.");
+//            보통은 코드중지 목적으로 unchecked exception 다시 throw.
+            throw new RuntimeException("입출력 과정에서 예외가 발생했습니다.");
         }
+
+////        방법2. 현재 메서드를 호출하는 쪽으로 예외를 위임(throws 키워드 사용)
+//        String text = Files.readString(filePath);
+        return text;
     }
 }
